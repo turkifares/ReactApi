@@ -10,7 +10,7 @@ const List =({list})=>  (
       
       {list.map((item,index)=>(
         
-        <Item key={index} item={item}/>
+        <Item key={index} item={item}/>  /* Rendu de chaque élément de la liste */
       ))}
   </table>
   )
