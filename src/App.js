@@ -1,74 +1,70 @@
-
-
 import './App.css';
-import { useState } from 'react';
-import React from 'react'
+import React, { useReducer, useEffect } from 'react';
+import axios from 'axios';
 import List from './components/List';
-import Search from './components/Search'
+import Search from './components/Search';
 
- 
+const actionTypes = {
+  FETCH_SUCCESS: 'FETCH_SUCCESS',
+  FETCH_ERROR: 'FETCH_ERROR',
+  SET_SEARCH_TERM: 'SET_SEARCH_TERM',
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case actionTypes.FETCH_SUCCESS:
+      return { ...state, weatherList: action.payload, loading: false, error: null };
+    case actionTypes.FETCH_ERROR:
+      return { ...state, loading: false, error: action.payload };
+    case actionTypes.SET_SEARCH_TERM:
+      return { ...state, searchTerm: action.payload };
+    default:
+      return state;
+  }
+};
 
 function App() {
-  // Variable d'état pour stocker les données météorologiques
-  const [Weatherlist, SetWeatherlist] = useState(null);
+  const [state, dispatch] = useReducer(reducer, {
+    weatherList: null,
+    loading: true,
+    error: null,
+    searchTerm: '',
+  });
 
-  // Fonction asynchrone pour récupérer les données météorologiques
   const fetchData = async () => {
     try {
-      // Effectuer une requête HTTP pour récupérer les données JSON
-      const response = await fetch('https://dummyjson.com/products');
-      const jsonData = await response.json();
-
-      // Afficher les données dans la console et les mettre à jour dans l'état
-      console.log(jsonData.products);
-      SetWeatherlist(jsonData.products);
+      const response = await axios.get('https://dummyjson.com/products');
+      dispatch({ type: actionTypes.FETCH_SUCCESS, payload: response.data.products });
     } catch (error) {
-      console.error('Error:', error);
+      dispatch({ type: actionTypes.FETCH_ERROR, payload: error.message });
     }
   };
 
-  // Variable d'état pour stocker le terme de recherche
-  const [searchTerm, SetSearchTerm] = useState('');
-
-  // Fonction pour mettre à jour le terme de recherche lors de la saisie de l'utilisateur
   const handleSearch = (event) => {
-    SetSearchTerm(event.target.value);
+    dispatch({ type: actionTypes.SET_SEARCH_TERM, payload: event.target.value });
   };
 
-  // Filtrer les données météorologiques en fonction du terme de recherche saisi
-  const searchedStories = Weatherlist?.filter((item) => {
-    return item?.title?.toLowerCase().includes(searchTerm?.toLowerCase());
+  const searchedStories = state.weatherList?.filter((item) => {
+    return item?.title?.toLowerCase().includes(state.searchTerm?.toLowerCase());
   });
 
-  // Appeler fetchData une fois au chargement initial du composant
-  React.useEffect(() => {
+  useEffect(() => {
     fetchData();
   }, []);
 
-  // Rendu du composant App
   return (
     <div className="container">
-      {/* Composant de recherche avec les props search et onSearch */}
-      <Search search={searchTerm} onSearch={handleSearch} />
+      <Search search={state.searchTerm} onSearch={handleSearch} />
 
-      {Weatherlist ? (
-        // Rendu du composant de liste avec les données filtrées
-        <List list={searchedStories} />
-      ) : (
-        // Afficher un message de chargement si les données ne sont pas encore disponibles
+      {state.loading ? (
         <p>loading data</p>
+      ) : state.error ? (
+        <p>Error: {state.error}</p>
+      ) : (
+        <List list={searchedStories} />
       )}
     </div>
   );
 }
 
-  
-
-
- 
-
-
-
-export default App;
- 
-
+export default App
