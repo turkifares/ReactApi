@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import App, { reducer, actionTypes } from './App';
-
+import '@testing-library/jest-dom';
 jest.mock('axios');
 
 describe('Reducer', () => {
