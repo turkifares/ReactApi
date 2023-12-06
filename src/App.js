@@ -1,16 +1,16 @@
-import './App.css';
+
 import React, { useReducer, useEffect } from 'react';
 import axios from 'axios';
-import List from './components/List';
-import Search from './components/Search';
+import List from '../components/List';
+import Search from '../components/Search';
 
-const actionTypes = {
+export const actionTypes = {
   FETCH_SUCCESS: 'FETCH_SUCCESS',
   FETCH_ERROR: 'FETCH_ERROR',
   SET_SEARCH_TERM: 'SET_SEARCH_TERM',
 };
 
-const reducer = (state, action) => {
+export const reducer = (state, action) => {
   switch (action.type) {
     case actionTypes.FETCH_SUCCESS:
       return { ...state, weatherList: action.payload, loading: false, error: null };
@@ -67,4 +67,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
